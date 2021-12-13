@@ -61,4 +61,8 @@ public class ST<T, U> {
 		return keys;
 	}
 
+	public int getSize(){
+		return N;
+	}
+
 }

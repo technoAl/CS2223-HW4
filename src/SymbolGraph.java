@@ -7,14 +7,16 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class SymbolGraph {
-	String pathName;
-	Graph graph; // Uses IDs
-	ST<String, Integer> nameToID;
-	String[] keys;
+	private String pathName;
+	private Graph graph; // Uses IDs
+	private ST<String, Vertice> nameToVertice;
+	private ST<Long, Vertice> IDToVertice;
+	private String[] keys;
 
 	public SymbolGraph(String pathName) throws IOException, ParseException {
 		this.pathName = pathName;
-		nameToID = new ST<>();
+		nameToVertice = new ST<>();
+		IDToVertice = new ST<>();
 		parse();
 	}
 
@@ -24,36 +26,46 @@ public class SymbolGraph {
 
 		for(int i = 0; i < array.size(); i++){ // For each user, give it a unique vertex number
 			JSONObject currentElement = (JSONObject) array.get(i);
-			nameToID.put((String)currentElement.get("name"), nameToID.getSize());
+			Vertice vertice = new Vertice((String)currentElement.get("name"), (Long)currentElement.get("id"), nameToVertice.getSize(), (String)currentElement.get("continent"));
+			if(vertice.continent == null){
+				vertice.continent = "";
+			}
+			nameToVertice.put((String)currentElement.get("name"), vertice);
+			IDToVertice.put((Long)currentElement.get("id"), vertice);
+			//System.out.println(vertice.V);
 		}
 
-		keys = new String[nameToID.getSize()];
-		Object[] STkeys = (Object[]) nameToID.getKeys();
-		for(int i = 0; i < keys.length; i++){
-			if(keys[i] == null) continue;
+		keys = new String[nameToVertice.getSize()];
+		Object[] STkeys = (Object[]) nameToVertice.getKeys();
+		for(int i = 0; i < STkeys.length; i++){
+			if(STkeys[i] == null) continue;
 			String key = (String) STkeys[i];
-			keys[nameToID.get(key)] = key;
+			keys[nameToVertice.get(key).V] = key;
 		}
 
-		graph = new Graph(nameToID.getSize());
+		graph = new Graph(nameToVertice.getSize());
 
 		for(int i = 0; i < array.size(); i++){ // Build the graph
 			JSONObject currentElement = (JSONObject) array.get(i);
 			JSONArray neighbors = (JSONArray) currentElement.get("neighbors");
 			for(Object neighbor:neighbors){
-				int neighborID = (Integer) neighbor;
-				int currentID = (Integer) currentElement.get("id");
-				graph.addEdge(currentID, neighborID);
+				long neighborID = (Long) neighbor;
+				long currentID = (Long) currentElement.get("id");
+				graph.addEdge(IDToVertice.get(currentID).V, IDToVertice.get(neighborID).V);
 			}
 		}
 	}
 
 	public boolean contains(String s) {
-		return nameToID.get(s) != null;
+		return nameToVertice.get(s) != null;
 	}
 
 	public int index(String s) {
-		return nameToID.get(s);
+		return nameToVertice.get(s).V;
+	}
+
+	public String continent(String s){
+		return nameToVertice.get(s).continent;
 	}
 
 	public String name(int v) {
@@ -62,6 +74,19 @@ public class SymbolGraph {
 
 	public Graph graph() {
 		return graph;
+	}
+
+	static class Vertice{
+		String name;
+		long ID;
+		int V; // vertice
+		String continent;
+		public Vertice(String name, long ID, int V, String continent){
+			this.name = name;
+			this.ID = ID;
+			this.V = V;
+			this.continent = continent;
+		}
 	}
 
 }

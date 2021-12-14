@@ -1,0 +1,9 @@
+To execute the files for this HW. (Only .java files included from original Intellij project)
+1. Open the folder regarding the question to be graded
+2. Keep all the java files in a folder together in the same package (default package works!)
+3. Execute the main of the java Question1.java to see results. 
+4. Originally run with path "./network_large_directed_multiEdge.json". The file is in the project folder NOT the source folder.
+4.5. Json Parsing Requires the Simple Json Jar file or json-simple-1.1.jar. Found here: http://www.java2s.com/Code/Jar/j/Downloadjsonsimple111jar.htm
+4.75. (I included the JAR file in my submission for easy access)
+5. Feel free to run on other data/change or move the files, just change the path in the code to match
+(Written in Java 11 using Intellij)

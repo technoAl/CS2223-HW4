@@ -26,9 +26,12 @@ public class SymbolGraph {
 
 		for(int i = 0; i < array.size(); i++){ // For each user, give it a unique vertex number
 			JSONObject currentElement = (JSONObject) array.get(i);
-			Vertice vertice = new Vertice((String)currentElement.get("name"), (Long)currentElement.get("id"), nameToVertice.getSize(), (String)currentElement.get("continent"));
+			Vertice vertice = new Vertice((String)currentElement.get("name"), (Long)currentElement.get("id"), nameToVertice.getSize(), (String)currentElement.get("continent"), (String)currentElement.get("type"));
 			if(vertice.continent == null){
 				vertice.continent = "";
+			}
+			if(vertice.type == null){
+				vertice.type = "";
 			}
 			nameToVertice.put((String)currentElement.get("name"), vertice);
 			IDToVertice.put((Long)currentElement.get("id"), vertice);
@@ -68,6 +71,10 @@ public class SymbolGraph {
 		return nameToVertice.get(s).continent;
 	}
 
+	public String type(String s) {
+		return nameToVertice.get(s).type;
+	}
+
 	public String name(int v) {
 		return keys[v];
 	}
@@ -81,11 +88,13 @@ public class SymbolGraph {
 		long ID;
 		int V; // vertice
 		String continent;
-		public Vertice(String name, long ID, int V, String continent){
+		String type;
+		public Vertice(String name, long ID, int V, String continent, String type){
 			this.name = name;
 			this.ID = ID;
 			this.V = V;
 			this.continent = continent;
+			this.type = type;
 		}
 	}
 

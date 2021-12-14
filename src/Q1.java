@@ -8,7 +8,7 @@ public class Q1 {
 		SymbolGraph sg = new SymbolGraph("./network_large_directed_multiEdge.json");
 
 		System.out.println(getNeighbors("giCentre", "North America", sg));
-		System.out.println(shortestPath("Lane Harrison", "Robert Gove", sg));
+		System.out.println(shortestPath("Lane Harrison", "Robert Gove", sg, "institution"));
 	}
 
 	// Gets all neighbors with a matching continent
@@ -31,7 +31,7 @@ public class Q1 {
 	}
 
 	// Runs a BFS until the target is found, then returns the path from start to end
-	public static List<String> shortestPath(String start, String end, SymbolGraph sg){
+	public static List<String> shortestPath(String start, String end, SymbolGraph sg, String type){
 		List<String> result = new ArrayList<>();
 
 		// Store visited arrays, previous vertice, and a queue
@@ -49,7 +49,9 @@ public class Q1 {
 			int current = toVisit.remove(); // get current Node
 
 			if(current == target){ // Stop if target is found
-				break;
+				if(type == null && type.equals(sg.type(sg.name(current)))) {
+					break;
+				}
 			}
 
 			// Loop through neighbors

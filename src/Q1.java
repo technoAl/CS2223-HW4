@@ -33,58 +33,93 @@ public class Q1 {
 	// Runs a BFS until the target is found, then returns the path from start to end
 	public static List<String> shortestPath(String start, String end, SymbolGraph sg, String type){
 		List<String> result = new ArrayList<>();
+		List<Integer> resultVertices = new ArrayList<>();
+		List<Node> paths = new ArrayList<>();
 
 		// Store visited arrays, previous vertice, and a queue
 		boolean[] visited = new boolean[sg.graph().getNumVertices()];
-		int[] prevVertice = new int[sg.graph().getNumVertices()];
+		HashSet<Integer>[] prevVertice = new HashSet[sg.graph().getNumVertices()];
+
 		int target = sg.index(end);
+		int startValue = sg.index(start);
+		Queue<Node> toVisit = new ArrayDeque<>();
 
-		Queue<Integer> toVisit = new ArrayDeque<>();
+		Node startNode = new Node(startValue, 0);
+		toVisit.add(startNode);
+		//visited[startValue] = true;
 
-		toVisit.add(sg.index(start));
-		visited[sg.index(start)] = true;
+		int foundDist = Integer.MAX_VALUE;
 
 		// Run until queue is empty or target is found
 		while(!toVisit.isEmpty()){
-			int current = toVisit.remove(); // get current Node
+			Node current = toVisit.remove(); // get current Node
+			visited[current.currentValue] = true;
 
-			if(current == target){ // Stop if target is found
-				if(type == null && type.equals(sg.type(sg.name(current)))) {
-					break;
-				}
+			if(current.currentValue == target && current.distanceFromStart > foundDist){ // Stop if target is found
+				break;
+			} else if(current.currentValue == target && current.distanceFromStart < foundDist){
+				foundDist = current.distanceFromStart;
+				paths.add(current);
+			} else if(current.currentValue == target){
+				paths.add(current);
 			}
 
 			// Loop through neighbors
-			for(int neighbor: sg.graph().adj(current)){
+			for(int neighbor: sg.graph().adj(current.currentValue)){
 
 				// If you haven't visited
 				if(!visited[neighbor]){
 					//System.out.println(sg.name(neighbor));
-					// Set previous node
-					prevVertice[neighbor] = current;
 
 					// Make sure the node will be visited in the future
-					toVisit.add(neighbor);
+					Node neighborNode = new Node(neighbor, current.distanceFromStart + 1);
+					neighborNode.path.addAll(current.path);
+					neighborNode.path.add(current.currentValue);
+
+					toVisit.add(neighborNode);
 
 					// Set the node as already visited here to prevent later occurrences of this same Node from messing with the path
-					visited[neighbor] = true;
 				}
 			}
 			//System.out.println();
 		}
 
-		// Run through the previous vertices until we reach the start
-		int prev = prevVertice[target];
-		result.add(sg.name(sg.index(end)));
-		while(prev != sg.index(start)){
-			result.add(sg.name(prev));
-			prev = prevVertice[prev];
+		if(type == null || type.equals("")) {
+			for(int i = 0; i < paths.get(0).path.size(); i++){
+				result.add(sg.name(paths.get(0).path.get(i)));
+			}
+			result.add(end);
+			return result;
 		}
-		result.add(sg.name(prev));
 
-		// List is backwards as we added starting at the end
-		Collections.reverse(result);
+		for (Node n : paths) {
+			boolean typeMatch = true;
+			for (int i = 1; i < n.path.size(); i++) {
+				if (!sg.type(sg.name(n.path.get(i))).equals(type)) {
+					typeMatch = false;
+				}
+			}
+			if(typeMatch){
+				for (int i = 0; i < n.path.size(); i++) {
+					result.add(sg.name(n.path.get(i)));
+				}
+				result.add(end);
+				return result;
+			}
+		}
 
 		return result;
+	}
+
+	static class Node {
+		int currentValue;
+		int distanceFromStart;
+		ArrayList<Integer> path;
+		public Node(int currentValue, int distanceFromStart){
+			this.currentValue = currentValue;
+			this.distanceFromStart = distanceFromStart;
+			path = new ArrayList<>();
+		}
+
 	}
 }

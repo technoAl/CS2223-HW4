@@ -30,7 +30,10 @@ public class Q1 {
 		return result;
 	}
 
-	// Runs a BFS until the target is found, then returns the path from start to end
+	// Runs a BFS until the target is found
+	// Stores all paths of the shortest length
+	// Picks a path based on a type (looking for institution or not)
+	// Otherwise returns the first path found
 	public static List<String> shortestPath(String start, String end, SymbolGraph sg, String type){
 		List<String> result = new ArrayList<>();
 		List<Integer> resultVertices = new ArrayList<>();
@@ -55,12 +58,13 @@ public class Q1 {
 			Node current = toVisit.remove(); // get current Node
 			visited[current.currentValue] = true;
 
-			if(current.currentValue == target && current.distanceFromStart > foundDist){ // Stop if target is found
+			// Find target
+			if(current.currentValue == target && current.distanceFromStart > foundDist){ // End if already have paths shorter than this one
 				break;
-			} else if(current.currentValue == target && current.distanceFromStart < foundDist){
+			} else if(current.currentValue == target && current.distanceFromStart < foundDist){ // Set shortest path length when find the target
 				foundDist = current.distanceFromStart;
 				paths.add(current);
-			} else if(current.currentValue == target){
+			} else if(current.currentValue == target){ // If another path matches the shortest length add it to the list of paths
 				paths.add(current);
 			}
 
@@ -71,11 +75,13 @@ public class Q1 {
 				if(!visited[neighbor]){
 					//System.out.println(sg.name(neighbor));
 
-					// Make sure the node will be visited in the future
+					// Make a new neighbor node and store the path using path of the node it came front
+					// Also increase the distance from start by 1
 					Node neighborNode = new Node(neighbor, current.distanceFromStart + 1);
 					neighborNode.path.addAll(current.path);
 					neighborNode.path.add(current.currentValue);
 
+					// Make sure the node will be visited in the future
 					toVisit.add(neighborNode);
 
 					// Set the node as already visited here to prevent later occurrences of this same Node from messing with the path
@@ -84,6 +90,7 @@ public class Q1 {
 			//System.out.println();
 		}
 
+		// If no type, just return the first path found
 		if(type == null || type.equals("")) {
 			for(int i = 0; i < paths.get(0).path.size(); i++){
 				result.add(sg.name(paths.get(0).path.get(i)));
@@ -92,6 +99,7 @@ public class Q1 {
 			return result;
 		}
 
+		// Otherwise look for a path matching the type : "institution" in the example
 		for (Node n : paths) {
 			boolean typeMatch = true;
 			for (int i = 1; i < n.path.size(); i++) {
@@ -108,13 +116,15 @@ public class Q1 {
 			}
 		}
 
+		// return path
 		return result;
 	}
 
+	// Node class
 	static class Node {
-		int currentValue;
-		int distanceFromStart;
-		ArrayList<Integer> path;
+		int currentValue; // Vertice it's at
+		int distanceFromStart; // Distance out from the start
+		ArrayList<Integer> path; // Path of node it took to get there
 		public Node(int currentValue, int distanceFromStart){
 			this.currentValue = currentValue;
 			this.distanceFromStart = distanceFromStart;
